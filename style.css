@@ -6,3 +6,22 @@
 	color: red;
 	text-decoration: underline;
 }
+
+input[type="file"] {
+    display: none;
+}
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+	color:#000000;
+	background-color:pink;
+    font-size: 30px;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.custom-file-upload:hover {
+	color:#000000;
+	background-color:#E75480;
+}
+

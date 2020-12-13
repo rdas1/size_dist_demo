@@ -10,7 +10,12 @@
 <body>
 	<div id="container">
 		<div id="beforeCanvas">
-			<input type="file" id="imageLoader" accept="image/*" capture="camera">
+		<h1>Take a photo of your computer screen, with an ID card or credit card (stripe side out) laying against it.</h1>
+		<label for="imageLoader" class="custom-file-upload">
+		    <i class="fa fa-cloud-upload"></i> Take Photo
+		</label>
+		<input type="file" id="imageLoader" accept="image/*" capture="camera" size=70>
+
 			<ol id="instructions"></ol>
 			<h1 id="resultsLabel"></h1>
 			<ul id="resultsList"></ul>

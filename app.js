@@ -1,3 +1,13 @@
+var max_width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+
+var max_height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
+
+var max = Math.max(max_width * 0.8, max_height * 0.8);
+
 const canvas = new fabric.Canvas('canvas');
 const instructions = document.getElementById('instructions');
 
@@ -159,12 +169,12 @@ function draw() {
 
 	var scale = 1;
 
-	if (this.width > 600) {
-		scale = 600 / this.width;
+	if (this.height > max) {
+		scale = max / this.height;
 	}
 
-	else if (this.height > 600) {
-		scale = 600 / this.height;
+	else if (this.width > max) {
+		scale = max / this.width;
 	}
 
 	var image = new fabric.Image(this);
@@ -181,6 +191,9 @@ function draw() {
 	    hasControls: false,
 	    evented: false,
 	})
+
+	//console.log(image.getScaledWidth());
+	//console.log(image.getScaledHeight());
 
     canvas.setWidth(image.getScaledWidth())
     canvas.setHeight(image.getScaledHeight())
