@@ -1,8 +1,21 @@
-#instructions {
-	font-weight: bold;
+.container {
+	margin: auto;
+	width: 50%;
 }
 
-#resultsLabel {
-	color: red;
-	text-decoration: underline;
+video { 
+	border: 2px solid #666;
+	position: fixed; /* or absolute */
+}
+
+
+canvas {
+	border: 2px solid red;
+	position: relative;
+	display: block;
+  /* display: none; */
+}
+
+h1 {
+	display: block;
 }

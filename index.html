@@ -1,25 +1,25 @@
-<!doctype html>
-
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>aurora.js</title>
+  <title>Using eye tracking</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-	<div id="container">
-		<div id="beforeCanvas">
-			<input type="file" id="imageLoader" accept="image/*" capture="camera">
-			<ol id="instructions"></ol>
-			<h1 id="resultsLabel"></h1>
-			<ul id="resultsList"></ul>
-		</div>
-		<canvas id="canvas" width="0" height="0"></canvas>
-		<div id="afterCanvas">
-		</div>
+	<div class="container">
+
+      <video id="videoElement" width="600" height="450" preload autoplay loop muted></video>
+      <canvas id="faceDetectionCanvas" width="600" height="450"></canvas>
+
 	</div>
-	<script src="vendor/fabric.min.js"></script>
-  	<script src="app.js"></script>
+
+	<h1>Yo</h1>
+
+	<script src="vendor/face.js"></script>
+	<script src="vendor/ccv.js"></script>
+	<script src="vendor/tracking-min.js"></script>
+	<script src="vendor/face-min.js"></script>
+	<script src="vendor/eye-min.js"></script>
+	<script src="script.js"></script>
 </body>
-</html>
+
