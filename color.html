@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Hello OpenCV.js</title>
+</head>
+<body>
+<h2>Hello OpenCV.js</h2>
+<p id="status">OpenCV.js is loading...</p>
+<div>
+  <div class="inputoutput">
+    <img id="imageSrc" alt="No Image" />
+    <div class="caption">imageSrc <input type="file" id="fileInput" name="file" accept="image/*" /></div>
+  </div>
+  <div class="inputoutput">
+    <canvas id="canvasOutput" ></canvas>
+    <div class="caption">canvasOutput</div>
+  </div>
+</div>
+<script type="text/javascript">
+
+	let screenWidthPx = 0;
+	let screenHeightPx = 0;
+	screenDiagPx = 0;
+
+	let cardWidthPx = 0;
+	const cardWidthIn = 2.125;
+	const cardWidthMM = 53.975;
+
+	let ppI = 0;
+	let ppMM = 0;
+
+	let screenWidthIn = 0;
+	let screenHeightIn = 0;
+	let screenDiagIn = 0;
+
+	let screenWidthMM = 0;
+	let screenHeightMM = 0;
+	let screenDiagMM = 0;
+
+	let imgElement = document.getElementById('imageSrc');
+	let inputElement = document.getElementById('fileInput');
+	inputElement.addEventListener('change', (e) => {
+	  imgElement.src = URL.createObjectURL(e.target.files[0]);
+	}, false);
+	imgElement.onload = function() {
+
+		// first, find the computer screen by finding the pixels that are close to magenta
+		let src = cv.imread(imgElement);
+
+		src = gammaCorrect(src, 2.19);
+
+		let magenta = new cv.Mat();
+		let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
+		let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
+		cv.inRange(src, low, high, magenta);
+		// cv.imshow('canvasOutput', magenta);
+		low.delete(); high.delete();
+		
+		src = magenta;
+		let blurred = new cv.Mat();
+		let ksize = new cv.Size(3, 3);
+		cv.GaussianBlur(src, blurred, ksize, 0, 0, cv.BORDER_DEFAULT);
+
+		cv.imshow("canvasOutput", blurred);
+
+
+		let contoursColor = new cv.Scalar(255, 255, 255);
+		let rectangleColor = new cv.Scalar(255, 0, 0);
+
+		src = blurred;
+		let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
+		let contours = new cv.MatVector();
+		let hierarchy = new cv.Mat();
+
+		cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+		let largestContour = 0;
+		for (let i = 0; i < contours.size(); ++i) {
+
+			if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
+				largestContour = i;
+			}
+
+		    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+		                              Math.round(Math.random() * 255));
+		    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+		}
+		console.log(largestContour);
+		let screenCont = contours.get(largestContour);
+		// You can try more different parameters
+		let screenBoundingRect = cv.boundingRect(screenCont);
+
+		let pointA = new cv.Point(screenBoundingRect.x, screenBoundingRect.y);
+		let pointB = new cv.Point(screenBoundingRect.x + screenBoundingRect.width, screenBoundingRect.y + screenBoundingRect.height);
+		cv.rectangle(dst, pointA, pointB, rectangleColor, 2, cv.LINE_AA, 0);
+
+		screenWidthPx = screenBoundingRect.width;
+		screenHeightPx = screenBoundingRect.height;
+		screenDiagPx = Math.sqrt(Math.pow(screenWidthPx, 2) + Math.pow(screenHeightPx, 2));
+
+		console.log("screenWidthPx", screenWidthPx);
+		console.log("screenWidthPx", screenWidthPx);
+		//cv.imshow('canvasOutput', dst);
+
+		// Now, crop screen (to avoid bezels) and look for the reference card
+
+		screenCroppedRect = new cv.Rect(screenBoundingRect.x + 50, screenBoundingRect.y + 50, screenBoundingRect.width - 100, screenBoundingRect.height - 100);
+		cv.bitwise_not(blurred, src);
+		src = blurred.roi(screenCroppedRect);
+		dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+		// cv.imshow('canvasOutput', src); // to see crop
+		contours = new cv.MatVector();
+		hierarchy = new cv.Mat();
+		cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+		largestContour = 0;
+		for (let i = 0; i < contours.size(); ++i) {
+
+			if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
+				largestContour = i;
+			}
+
+		    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+		                              Math.round(Math.random() * 255));
+		    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+		}
+		console.log(largestContour);
+		let cardCont = contours.get(largestContour);
+		// You can try more different parameters
+		let cardBoundingRect = cv.boundingRect(cardCont);
+
+		let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
+		let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
+		cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);		
+		cv.imshow('canvasOutput', dst);
+
+		cardWidthPx = cardBoundingRect.width;
+		ppI = cardWidthPx/cardWidthIn;
+		ppMM = cardWidthPx/cardWidthMM;
+
+		screenWidthIn = screenWidthPx / ppI;
+		screenHeightIn = screenHeightPx / ppI;
+		screenDiagIn = screenDiagPx / ppI;
+
+		screenWidthMM = screenWidthPx / ppMM;
+		screenHeightMM = screenHeightPx / ppMM;
+		screenDiagMM = screenDiagPx / ppMM;	
+
+
+		console.log("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)");
+		console.log("Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)");
+		console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");		
+
+	};
+
+	function gammaCorrect(image, gamma) {
+
+		let imageC = image.clone();
+		let inverseGamma = 1 / gamma;
+
+		for(let i = 0; i < imageC.rows; i++) {
+		   for(let j=0; j < imageC.cols; j++) {
+		   		imageC.ucharPtr(i, j)[0] = 255 * ((imageC.ucharPtr(i, j)[0] / 255) ** inverseGamma);
+		   		imageC.ucharPtr(i, j)[1] = 255 * ((imageC.ucharPtr(i, j)[1] / 255) ** inverseGamma);
+		   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j)[2] / 255) ** inverseGamma);
+		   }
+		}
+
+
+		//let inverseGamma = 1 / gamma;
+		//let minMax = cv.minMaxLoc(image);
+		//let minVal = minMax.minVal;
+		//let maxVal = minMax.maxVal;
+
+		//let imageC = image.clone();
+
+		//imageC = 255 * (imageC/255)^(1/2.2);
+		//console.log(imageC.cols);
+
+		return imageC;
+	}
+
+	function onOpenCvReady() {
+	  document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+	}
+</script>
+<script async src="vendor/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+</body>
+</html>
