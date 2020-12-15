@@ -1,25 +1,265 @@
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>Using eye tracking</title>
-  <link rel="stylesheet" href="style.css">
+	<meta charset="utf-8">
+	<title>Hello OpenCV.js</title>
+	<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-	<div class="container">
+	<h1 id="instructions">Take a photo of your screen, with your ID Card or Credit Card (stripe side out) covering the QR Code.</h1>
+	<h2 id="status">Loading...</h2>
+	<div>
+		<div class="inputoutput">
 
-      <video id="videoElement" width="600" height="450" preload autoplay loop muted></video>
-      <canvas id="faceDetectionCanvas" width="600" height="450"></canvas>
+			<img id="imageSrc"/>
 
+			<label class="custom-file-upload">
+				<input type="file" id="fileInput" name="file" accept="image/*" size=60/>
+				Take photos
+			</label>
+			<br>
+			Gamma Correction? (currently very slow): <input type="checkbox" id="gammeCorrectionSwitch">
+
+
+		</div>
+
+		<div class="inputoutput">
+			<canvas id="canvasOutput" ></canvas>
+			<div class="caption"></div>
+		</div>
 	</div>
+	<script src="https://unpkg.com/exifr@2.1.3/index.js"></script>
+	<script type="text/javascript">
 
-	<h1>Yo</h1>
+		let imageWidth = 0;
+		let imageHeight = 0;
 
-	<script src="vendor/face.js"></script>
-	<script src="vendor/ccv.js"></script>
-	<script src="vendor/tracking-min.js"></script>
-	<script src="vendor/face-min.js"></script>
-	<script src="vendor/eye-min.js"></script>
-	<script src="script.js"></script>
+		let screenWidthPx = 0;
+		let screenHeightPx = 0;
+		screenDiagPx = 0;
+
+		let cardWidthPx = 0;
+		const cardWidthIn = 2.125;
+		const cardWidthMM = 53.975;
+
+		let ppI = 0;
+		let ppMM = 0;
+
+		let screenWidthIn = 0;
+		let screenHeightIn = 0;
+		let screenDiagIn = 0;
+
+		let screenWidthMM = 0;
+		let screenHeightMM = 0;
+		let screenDiagMM = 0;
+
+
+		var focalLength;;
+		var equivalent35MMFocalLength;
+
+		var cropFactor;
+
+		const sensorWidth35MM = 36;
+		const sensorHeight35MM = 24;
+		const sensorSize35MM = Math.sqrt(Math.pow(sensorWidth35MM,2) + Math.pow(sensorHeight35MM,2));
+
+		var sensorSize = 0;
+		var sensorWidth = 0;
+		var sensorHeight = 0;
+
+		var viewingDistance = 0;
+
+		let imgElement = document.getElementById('imageSrc');
+		let inputElement = document.getElementById('fileInput');
+		inputElement.addEventListener('change', async e => {
+			let exifData = await exifr.parse(e.target.files[0]);
+			console.log(exifData);
+			//focalLength = exifr.getTag(this, "FocalLength");
+			focalLength = exifData.FocalLength;
+			imageWidth = exifData.PixelXDimension;
+			imageHeight = exifData.PixelYDimension;
+
+			focalLength = exifData.FocalLength;
+			equivalent35MMFocalLength = exifData.FocalLengthIn35mmFormat;
+			console.log(equivalent35MMFocalLength);
+
+			cropFactor = equivalent35MMFocalLength / focalLength;
+			sensorSize = sensorSize35MM / cropFactor;
+			sensorWidth = sensorSize * 0.8;
+			sensorHeight = sensorSize * 0.6;
+			console.log(focalLength);
+		 	imgElement.src = URL.createObjectURL(e.target.files[0]);
+		}, false);
+
+		imgElement.onload = function() {
+
+			// first, find the computer screen by finding the pixels that are close to magenta
+			let src = cv.imread(imgElement);
+
+			if (document.getElementById("gammeCorrectionSwitch").checked) {
+				src = gammaCorrect(src, 2.19);
+			}
+
+			let magenta = new cv.Mat();
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
+			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
+			cv.inRange(src, low, high, magenta);
+			// cv.imshow('canvasOutput', magenta);
+			low.delete(); high.delete();
+			
+			src = magenta;
+			let blurred = new cv.Mat();
+			let ksize = new cv.Size(3, 3);
+			cv.GaussianBlur(src, blurred, ksize, 0, 0, cv.BORDER_DEFAULT);
+			magenta.delete();
+			cv.imshow("canvasOutput", blurred);
+
+
+			let contoursColor = new cv.Scalar(255, 255, 255);
+			let rectangleColor = new cv.Scalar(255, 0, 0);
+
+			src = blurred;
+			let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+
+			let contours = new cv.MatVector();
+			let hierarchy = new cv.Mat();
+
+			cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+			let largestContour = 0;
+			for (let i = 0; i < contours.size(); ++i) {
+
+				if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
+					largestContour = i;
+				}
+
+			    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+			                              Math.round(Math.random() * 255));
+			    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+			}
+			//console.log(largestContour);
+			let screenCont = contours.get(largestContour);
+			// You can try more different parameters
+			let screenBoundingRect = cv.boundingRect(screenCont);
+
+			let pointA = new cv.Point(screenBoundingRect.x, screenBoundingRect.y);
+			let pointB = new cv.Point(screenBoundingRect.x + screenBoundingRect.width, screenBoundingRect.y + screenBoundingRect.height);
+			cv.rectangle(dst, pointA, pointB, rectangleColor, 2, cv.LINE_AA, 0);
+
+			screenWidthPx = screenBoundingRect.width;
+			screenHeightPx = screenBoundingRect.height;
+			screenDiagPx = Math.sqrt(Math.pow(screenWidthPx, 2) + Math.pow(screenHeightPx, 2));
+
+			console.log("screenWidthPx", screenWidthPx);
+			console.log("screenWidthPx", screenWidthPx);
+			//cv.imshow('canvasOutput', dst);
+
+			// Now, crop screen (to avoid bezels) and look for the reference card
+
+			screenCroppedRect = new cv.Rect(screenBoundingRect.x + 50, screenBoundingRect.y + 50, screenBoundingRect.width - 100, screenBoundingRect.height - 100);
+			cv.bitwise_not(blurred, src);
+			src = blurred.roi(screenCroppedRect);
+			dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+			// cv.imshow('canvasOutput', src); // to see crop
+			contours = new cv.MatVector();
+			hierarchy = new cv.Mat();
+			cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+			largestContour = 0;
+			for (let i = 0; i < contours.size(); ++i) {
+
+				if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
+					largestContour = i;
+				}
+
+			    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+			                              Math.round(Math.random() * 255));
+			    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+			}
+			//console.log(largestContour);
+			let cardCont = contours.get(largestContour);
+			// You can try more different parameters
+			let cardBoundingRect = cv.boundingRect(cardCont);
+
+			let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
+			let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
+			cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);		
+			cv.imshow('canvasOutput', dst);
+
+			cardWidthPx = cardBoundingRect.width;
+			ppI = cardWidthPx/cardWidthIn;
+			ppMM = cardWidthPx/cardWidthMM;
+
+			screenWidthIn = screenWidthPx / ppI;
+			screenHeightIn = screenHeightPx / ppI;
+			screenDiagIn = screenDiagPx / ppI;
+
+			screenWidthMM = screenWidthPx / ppMM;
+			screenHeightMM = screenHeightPx / ppMM;
+			screenDiagMM = screenDiagPx / ppMM;	
+
+
+			console.log("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)");
+			console.log("Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)");
+			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
+
+			alert("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)\n" + "Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)\n" + "Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)")	
+
+			getViewingDistance();
+
+		};
+
+		function getViewingDistance() {
+
+			/*
+			console.log(focalLength);
+			console.log(cardWidthMM);
+			console.log(imageWidth);
+			console.log(cardWidthPx);
+			console.log(sensorWidth);
+			*/
+
+			viewingDistance = (focalLength * screenWidthMM * imageWidth)/(screenWidthPx * sensorWidth);
+			console.log("Viewing distance: ", viewingDistance);
+			alert("Viewing distance: " + viewingDistance + "mm");
+		}
+
+		function gammaCorrect(image, gamma) {
+
+			let imageC = image.clone();
+			let inverseGamma = 1 / gamma;
+
+			/*
+			let bar = document.getElementById("myBar")
+			let progress = document.getElementById("myProgress");
+
+			bar.style.display = "inline"
+		
+			let width = 0;
+			*/
+
+			let status = document.getElementById("status");
+
+			let progress = 0;
+
+			for(let i = 0; i < imageC.rows; i++) {
+			   for(let j=0; j < imageC.cols; j++) {
+
+			   		progress = 100 * ((i+1) * (j+1))/(imageC.rows * imageC.cols);
+			   		//status.innerText = "Gamma Correcting: " + progress + "%";
+			   		console.log("Gamma Correcting: " + progress + "%");
+
+			   		imageC.ucharPtr(i, j)[0] = 255 * ((imageC.ucharPtr(i, j)[0] / 255) ** inverseGamma);
+			   		imageC.ucharPtr(i, j)[1] = 255 * ((imageC.ucharPtr(i, j)[1] / 255) ** inverseGamma);
+			   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j)[2] / 255) ** inverseGamma);
+			   }
+			}
+
+			return imageC;
+		}
+
+		function onOpenCvReady() {
+		  document.getElementById('status').innerHTML = 'Ready';
+		}
+	</script>
+	<script async src="vendor/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
 </body>
-
+</html>
