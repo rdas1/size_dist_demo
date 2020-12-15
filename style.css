@@ -1,21 +1,27 @@
-.container {
+#instructions {
 	margin: auto;
-	width: 50%;
 }
 
-video { 
-	border: 2px solid #666;
-	position: fixed; /* or absolute */
+.inputoutput {
+	margin: auto;
+	text-align: center;
 }
 
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+img {
+	display: none;
+}
 
 canvas {
-	border: 2px solid red;
-	position: relative;
-	display: block;
-  /* display: none; */
-}
-
-h1 {
-	display: block;
+	display: none;
 }
