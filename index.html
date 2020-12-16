@@ -274,8 +274,7 @@
 			for (let i = 0; i < imageC.rows; i++) {
 
 				progress = 100 * (i+1)/(imageC.rows); 
-				//status.innerHTML = "Gamma Correcting: " + progress.toString() + "%";
-				console.log("Gamma Correcting: " + progress.toString() + "%");
+				status.innerHTML = "Gamma Correcting: " + progress.toString() + "%";
 
 			   for(let j=0; j < imageC.cols; j++) {
 
