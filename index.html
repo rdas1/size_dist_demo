@@ -242,11 +242,12 @@
 			let progress = 0;
 
 			for(let i = 0; i < imageC.rows; i++) {
-			   for(let j=0; j < imageC.cols; j++) {
 
-			   		progress = 100 * ((i+1) * (j+1))/(imageC.rows * imageC.cols);
-			   		//status.innerText = "Gamma Correcting: " + progress + "%";
-			   		console.log("Gamma Correcting: " + progress + "%");
+		   		progress = 100 * (i+1)/(imageC.rows);
+		   		status.innerText = "Gamma Correcting: " + progress + "%";
+		   		console.log("Gamma Correcting: " + progress + "%");
+
+			   for(let j=0; j < imageC.cols; j++) {
 
 			   		imageC.ucharPtr(i, j)[0] = 255 * ((imageC.ucharPtr(i, j)[0] / 255) ** inverseGamma);
 			   		imageC.ucharPtr(i, j)[1] = 255 * ((imageC.ucharPtr(i, j)[1] / 255) ** inverseGamma);
