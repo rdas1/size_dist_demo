@@ -8,6 +8,11 @@
 	text-align: center;
 }
 
+#status {
+	margin: auto;
+	text-align: center;
+}
+
 input[type="file"] {
     display: none;
 }
@@ -17,6 +22,12 @@ input[type="file"] {
     display: inline-block;
     padding: 6px 12px;
     cursor: pointer;
+    display: inline-block;
+    font-size: 30px;
+    width: 40%;
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
 }
 
 img {

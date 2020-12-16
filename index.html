@@ -4,24 +4,21 @@
 	<meta charset="utf-8">
 	<title>Screen Size and Viewing Distance</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="manifest" href="/static/manifest.json">
 </head>
 <body>
 	<h1 id="instructions">Take a photo of your screen, with your ID Card or Credit Card (stripe side out) covering the QR Code.</h1>
-	<h2 id="status">Loading...</h2>
+	<h3 id="status">Loading...</h3>
 	<div>
 		<div class="inputoutput">
 
 			<img id="imageSrc"/>
-
-			Gamma Correction? (currently very slow): <input type="checkbox" id="gammeCorrectionSwitch">
 			<br><br>
 			<label class="custom-file-upload">
 				<input type="file" id="fileInput" name="file" accept="image/*" size=60/>
-				Take photos
+				Take Photo
 			</label>
 			
-
-
 		</div>
 
 		<div class="inputoutput">
@@ -298,5 +295,14 @@
 		}
 	</script>
 	<script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+
+	<script>
+	 if (!navigator.serviceWorker.controller) {
+	     navigator.serviceWorker.register("/serviceWorker.js").then(function(reg) {
+	         console.log("Service worker has been registered for scope: " + reg.scope);
+	     });
+	 }
+	</script>
+
 </body>
 </html>
