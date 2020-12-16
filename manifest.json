@@ -1,0 +1,9 @@
+{
+  "name": "size-distance-demo",
+  "short_name": "size-dist",
+  "theme_color": "#2196f3",
+  "background_color": "#2196f3",
+  "display": "browser",
+  "scope": "/",
+  "start_url": "size-dist-demo.herokuapp.com/index.html"
+}	

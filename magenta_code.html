@@ -11,7 +11,17 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 	<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 	<script type="text/javascript">
-		new QRCode(document.getElementById("qrcode"), "https://size-dist-demo.herokuapp.com/index.html");
+
+		var qrcode = new QRCode(document.getElementById("qrcode"), {
+		    text: "https://size-dist-demo.herokuapp.com/index.html",
+		    width: 250,
+		    height: 250,
+		    colorDark : "#000000",
+		    colorLight : "#ffffff",
+		    correctLevel : QRCode.CorrectLevel.H
+		});
+
+		//new QRCode(document.getElementById("qrcode"), "https://size-dist-demo.herokuapp.com/index.html");
 	</script>
 
 </body>
