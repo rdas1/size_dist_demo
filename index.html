@@ -190,7 +190,7 @@
 			let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
 			let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
 			cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);		
-			cv.imshow('canvasOutput', dst);
+			//cv.imshow('canvasOutput', dst);
 
 			cardWidthPx = cardBoundingRect.width;
 			ppI = cardWidthPx/cardWidthIn;
@@ -294,14 +294,14 @@
 		}
 	</script>
 	<script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-<!---
+
 	<script>
 	 if (!navigator.serviceWorker.controller) {
-	     navigator.serviceWorker.register("/serviceWorker.js").then(function(reg) {
+	     navigator.serviceWorker.register("/sw.js").then(function(reg) {
 	         console.log("Service worker has been registered for scope: " + reg.scope);
 	     });
 	 }
 	</script>
--->
+
 </body>
 </html>
