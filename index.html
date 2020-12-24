@@ -22,11 +22,13 @@
 
 		<div class="inputoutput">
 			<canvas id="canvasOutput" ></canvas>
+			<canvas id="canvasOutput2" ></canvas>
 			<div class="caption"></div>
 		</div>
 	</div>
 	<script src="https://unpkg.com/exifr@2.1.3/index.js"></script>
 	<script type="text/javascript">
+
 
 		var imageWidth = 0;
 		let imageHeight = 0;
@@ -38,6 +40,8 @@
 		var cardWidthPx = 0;
 		const cardWidthIn = 2.125;
 		const cardWidthMM = 53.975;
+		const cardHeightIn = 3.375;
+		const cardHeightMM = 85.725;
 
 		var ppI = 0;
 		let ppMM = 0;
@@ -97,10 +101,13 @@
 
 			let status = document.getElementById("status");
 
-			alert("Gamma correcting ... (should take 10-20 seconds)");
-			src = gammaCorrect(src, 2.19);
-			
-			alert("Finished gamma correction. Computing screen size and distance...");
+			/*
+			if (confirm("Gamma correcting ... (should take 10-20 seconds)")) {
+				src = gammaCorrect(src, 2.19);
+				alert("Finished gamma correction. Computing screen size and distance...");
+			}
+			*/
+			//	cv.imshow("canvasOutput", src);
 			getSize(src);
 			getViewingDistance();
 			//}
@@ -109,10 +116,12 @@
 		function getSize(src) {
 
 			let magenta = new cv.Mat();
-			let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
+			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
+			// no more gamma correcting, just use this equivalent min threshold:
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [133, 0, 133, 0]); 
 			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
 			cv.inRange(src, low, high, magenta);
-			// cv.imshow('canvasOutput', magenta);
+			//cv.imshow('canvasOutput', magenta);
 			low.delete(); high.delete();
 			
 			src = magenta;
@@ -120,7 +129,7 @@
 			let ksize = new cv.Size(3, 3);
 			cv.GaussianBlur(src, blurred, ksize, 0, 0, cv.BORDER_DEFAULT);
 			magenta.delete();
-			cv.imshow("canvasOutput", blurred);
+			//cv.imshow("canvasOutput", blurred);
 
 
 			let contoursColor = new cv.Scalar(255, 255, 255);
@@ -142,11 +151,34 @@
 
 			    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
 			                              Math.round(Math.random() * 255));
-			    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+			    // cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
 			}
 			//console.log(largestContour);
-			let screenCont = contours.get(largestContour);
+
+
+			
+/*
+			let rotatedRect = cv.minAreaRect(screenCont);
+			let vertices = cv.RotatedRect.points(rotatedRect);
+			cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
+			// draw rotatedRect
+			for (let i = 0; i < 4; i++) {
+			    cv.line(dst, vertices[i], vertices[(i + 1) % 4], rectangleColor, 2, cv.LINE_AA, 0);
+			}
+
+			screenWidthPx = rotatedRect.width;
+			screenHeightPx = rotatedRect.height;
+			screenDiagPx = Math.sqrt(Math.pow(screenWidthPx, 2) + Math.pow(screenHeightPx, 2));
+
+			console.log("screenWidthPx", screenWidthPx);
+			console.log("screenHeightPx", screenHeightPx);
+			cv.imshow('canvasOutput', dst);
+
+			let screen = blurred.roi(rotatedRect);
+			cv.imshow("canvasOutput2", screen);
+*/
 			// You can try more different parameters
+			let screenCont = contours.get(largestContour);
 			let screenBoundingRect = cv.boundingRect(screenCont);
 
 			let pointA = new cv.Point(screenBoundingRect.x, screenBoundingRect.y);
@@ -159,11 +191,65 @@
 
 			console.log("screenWidthPx", screenWidthPx);
 			console.log("screenHeightPx", screenHeightPx);
-			//cv.imshow('canvasOutput', dst);
+			//cv.imshow('canvasOutput', dst);	
 
+			let screenCroppedRect = new cv.Rect(100, 100, screenBoundingRect.width * 0.7, screenBoundingRect.height * 0.8);
+
+			let screen = blurred.roi(screenBoundingRect);
+			screen = screen.roi(screenCroppedRect);
+			cv.bitwise_not(screen, screen);
+			cv.imshow("canvasOutput", screen);
+
+			//let inverted = cv.Mat.zeros(screen.rows, screen.cols, cv.CV_8UC3);
+			//cv.bitwise_not(screen, inverted)
+			//cv.imshow("canvasOutput2", inverted);
+
+			dst = cv.Mat.zeros(screen.rows, screen.cols, cv.CV_8UC3);
+			// cv.imshow('canvasOutput', src); // to see crop
+			contours = new cv.MatVector();
+			hierarchy = new cv.Mat();
+			cv.findContours(screen, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+			largestContour = 0;
+			for (let i = 0; i < contours.size(); ++i) {
+
+				if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
+					largestContour = i;
+				}
+
+			    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
+			                              Math.round(Math.random() * 255));
+			    //cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+			}
+			cv.drawContours(dst, contours, largestContour, contoursColor, 1, cv.LINE_8, hierarchy, 100);
+			//cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);
+			cv.imshow("canvasOutput2", dst);
+
+			let cardBoundingRect = cv.boundingRect(contours.get(largestContour));
+
+			cardWidthPx = cardBoundingRect.width;
+			ppI = cardWidthPx/cardWidthIn;
+			ppMM = cardWidthPx/cardWidthMM;
+			//ppI = cardWidthPx/cardHeightIn;
+			//ppMM = cardWidthPx/cardHeightMM;
+
+			screenWidthIn = screenWidthPx / ppI;
+			screenHeightIn = screenHeightPx / ppI;
+			screenDiagIn = screenDiagPx / ppI;
+
+			screenWidthMM = screenWidthPx / ppMM;
+			screenHeightMM = screenHeightPx / ppMM;
+			screenDiagMM = screenDiagPx / ppMM;	
+
+			console.log("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)");
+			console.log("Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)");
+			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
+
+			alert("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)\n" + "Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)\n" + "Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
+
+/*
 			// Now, crop screen (to avoid bezels) and look for the reference card
 
-			screenCroppedRect = new cv.Rect(screenBoundingRect.x + 50, screenBoundingRect.y + 50, screenBoundingRect.width - 100, screenBoundingRect.height - 100);
+			screenCroppedRect = new cv.Rect(screenBoundingRect.x + (screenBoundingRect.width * 0.25), screenBoundingRect.y +(screenBoundingRect.width * 0.1), (screenBoundingRect.width * 0.5), (screenBoundingRect.height * 0.5));
 			cv.bitwise_not(blurred, src);
 			src = blurred.roi(screenCroppedRect);
 			dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
@@ -182,19 +268,27 @@
 			                              Math.round(Math.random() * 255));
 			    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
 			}
+			//cv.imshow('canvasOutput2', dst);
 			//console.log(largestContour);
 			let cardCont = contours.get(largestContour);
 			// You can try more different parameters
 			let cardBoundingRect = cv.boundingRect(cardCont);
 
+			console.log("cardBoundingRect.width", cardBoundingRect.width);
+			console.log("cardBoundingRect.height", cardBoundingRect.height);
+			console.log(cardBoundingRect.width / cardBoundingRect.height);
+
 			let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
 			let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
 			cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);		
-			//cv.imshow('canvasOutput', dst);
+			cv.imshow('canvasOutput2', dst);
+
 
 			cardWidthPx = cardBoundingRect.width;
 			ppI = cardWidthPx/cardWidthIn;
 			ppMM = cardWidthPx/cardWidthMM;
+			//ppI = cardWidthPx/cardHeightIn;
+			//ppMM = cardWidthPx/cardHeightMM;
 
 			screenWidthIn = screenWidthPx / ppI;
 			screenHeightIn = screenHeightPx / ppI;
@@ -210,7 +304,7 @@
 			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
 
 			alert("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)\n" + "Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)\n" + "Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)")	
-
+*/
 		}
 
 		function getViewingDistance() {
@@ -274,6 +368,7 @@
 
 				progress = 100 * (i+1)/(imageC.rows); 
 				status.innerHTML = "Gamma Correcting: " + progress.toString() + "%";
+				console.log("Gamma Correcting: " + progress.toString() + "%")
 
 			   for(let j=0; j < imageC.cols; j++) {
 
