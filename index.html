@@ -11,6 +11,7 @@
 	<div>
 		<div class="inputoutput">
 
+			<img id="example" src=""/>
 			<img id="imageSrc"/>
 			<br><br>
 			<label class="custom-file-upload">
@@ -115,6 +116,8 @@
 
 		function getSize(src) {
 
+			cv.resize(src, src, new cv.Size(0,0), 0.5, 0.5);
+
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
 			// no more gamma correcting, just use this equivalent min threshold:
@@ -193,7 +196,7 @@
 			console.log("screenHeightPx", screenHeightPx);
 			//cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(100, 100, screenBoundingRect.width * 0.7, screenBoundingRect.height * 0.8);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.7, screenBoundingRect.height * 0.8);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
