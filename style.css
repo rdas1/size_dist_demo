@@ -1,4 +1,4 @@
-#instructions {
+.instructions {
 	margin: auto;
 	text-align: center;
 }
@@ -29,10 +29,11 @@ input[type="file"] {
 	line-height: 100px;
 	text-align: center;
 }
-
+/*
 img {
 	display: none;
 }
+*/
 /*
 canvas {
 	display: none;

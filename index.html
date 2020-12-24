@@ -6,13 +6,14 @@
 	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<h1 id="instructions">Take a photo of your screen, with your ID Card or Credit Card (stripe side out) covering the QR Code.</h1>
 	<h3 id="status">Loading...</h3>
+	<h1 class="instructions">Take a photo of your screen, with your ID Card or Credit Card (stripe side out) covering the QR Code.</h1>
+	<h3 class="instructions">Example:</h3>
 	<div>
 		<div class="inputoutput">
 
-			<img id="example" src=""/>
-			<img id="imageSrc"/>
+			<img id="example" src="images/example.jpg" width=25% height=25%/>
+			<img id="imageSrc" style="display: none"/>
 			<br><br>
 			<label class="custom-file-upload">
 				<input type="file" id="fileInput" name="file" accept="image/*" size=60/>
@@ -194,14 +195,15 @@
 
 			console.log("screenWidthPx", screenWidthPx);
 			console.log("screenHeightPx", screenHeightPx);
-			//cv.imshow('canvasOutput', dst);	
+			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
+			cv.imshow('canvasOutput', dst);	
 
 			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.7, screenBoundingRect.height * 0.8);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
 			cv.bitwise_not(screen, screen);
-			cv.imshow("canvasOutput", screen);
+			//cv.imshow("canvasOutput", screen);
 
 			//let inverted = cv.Mat.zeros(screen.rows, screen.cols, cv.CV_8UC3);
 			//cv.bitwise_not(screen, inverted)
@@ -225,6 +227,7 @@
 			}
 			cv.drawContours(dst, contours, largestContour, contoursColor, 1, cv.LINE_8, hierarchy, 100);
 			//cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);
+			cv.resize(dst, dst, new cv.Size(0,0), 0.5, 0.5);
 			cv.imshow("canvasOutput2", dst);
 
 			let cardBoundingRect = cv.boundingRect(contours.get(largestContour));
