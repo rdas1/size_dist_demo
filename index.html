@@ -116,12 +116,12 @@
 
 		function getSize(src) {
 
-			cv.resize(src, src, new cv.Size(0,0), 0.5, 0.5);
+			// cv.resize(src, src, cv.Size(0,0), 0.5, 0.5);
 
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
 			// no more gamma correcting, just use this equivalent min threshold:
-			let low = new cv.Mat(src.rows, src.cols, src.type(), [133, 0, 133, 0]); 
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [80, 0, 80, 0]); 
 			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
 			cv.inRange(src, low, high, magenta);
 			//cv.imshow('canvasOutput', magenta);
