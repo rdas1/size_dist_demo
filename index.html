@@ -326,6 +326,7 @@
 
 			viewingDistance = (focalLength * screenWidthMM * imageWidth)/(screenWidthPx * sensorWidth);
 			console.log("Viewing distance: ", viewingDistance);
+			document.getElementById("status").innerText = viewingDistance.toString();
 			alert("Viewing distance: " + viewingDistance + "mm");
 		}
 
