@@ -105,11 +105,13 @@
 			let status = document.getElementById("status");
 
 			/*
-			if (confirm("Gamma correcting ... (should take 10-20 seconds)")) {
+			if (confirm("Gamma correct? (should take 10-20 seconds)")) {
 				src = gammaCorrect(src, 2.19);
 				alert("Finished gamma correction. Computing screen size and distance...");
 			}
 			*/
+			
+			
 			//	cv.imshow("canvasOutput", src);
 			getSize(src);
 			getViewingDistance();
@@ -118,13 +120,17 @@
 
 		function getSize(src) {
 
-			// cv.resize(src, src, cv.Size(0,0), 0.5, 0.5);
+			let resized = new cv.Mat();
+			cv.resize(src, resized, new cv.Size(0,0), 0.1, 0.1);
+			//cv.imshow("canvasInput", resized);
+			resized.delete();
+
 
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
 			// no more gamma correcting, just use this equivalent min threshold:
-			let low = new cv.Mat(src.rows, src.cols, src.type(), [160, 0, 160, 0]); 
-			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [0, 0, 200, 0]); 
+			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 200, 255, 255]);
 			cv.inRange(src, low, high, magenta);
 			//cv.imshow('canvasOutput', magenta);
 			low.delete(); high.delete();
@@ -199,7 +205,7 @@
 			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
 			cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.9, screenBoundingRect.height * 0.4);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.9, screenBoundingRect.height * 0.6);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
@@ -226,14 +232,17 @@
 			                              Math.round(Math.random() * 255));
 			    //cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
 			}
-			cv.drawContours(dst, contours, largestContour, contoursColor, 1, cv.LINE_8, hierarchy, 100);
-			//cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);
+			//cv.drawContours(dst, contours, largestContour, contoursColor, 1, cv.LINE_8, hierarchy, 100);
+
+			let cardBoundingRect = cv.boundingRect(contours.get(largestContour));
+			let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
+			let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
+			cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);
 			cv.resize(dst, dst, new cv.Size(0,0), 0.5, 0.5);
 			cv.imshow("canvasOutput2", dst);
 
-			let cardBoundingRect = cv.boundingRect(contours.get(largestContour));
-
 			cardWidthPx = cardBoundingRect.width;
+			console.log("Card Width Px: ", cardWidthPx);
 			ppI = cardWidthPx/cardWidthIn;
 			ppMM = cardWidthPx/cardWidthMM;
 			//ppI = cardWidthPx/cardHeightIn;
@@ -251,7 +260,7 @@
 			console.log("Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)");
 			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
 
-			alert("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)\n" + "Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)\n" + "Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
+			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)");
 
 /*
 			// Now, crop screen (to avoid bezels) and look for the reference card
@@ -378,11 +387,11 @@
 				status.innerHTML = "Gamma Correcting: " + progress.toString() + "%";
 				console.log("Gamma Correcting: " + progress.toString() + "%")
 
-			   for(let j=0; j < imageC.cols; j++) {
-
-			   		imageC.ucharPtr(i, j)[0] = 255 * ((imageC.ucharPtr(i, j)[0] / 255) ** inverseGamma);
-			   		imageC.ucharPtr(i, j)[1] = 255 * ((imageC.ucharPtr(i, j)[1] / 255) ** inverseGamma);
+			   for(let j=0; j < imageC.cols-4; j+=4) {
 			   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j)[2] / 255) ** inverseGamma);
+			   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j+1)[2] / 255) ** inverseGamma);
+			   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j+2)[2] / 255) ** inverseGamma);
+			   		imageC.ucharPtr(i, j)[2] = 255 * ((imageC.ucharPtr(i, j+3)[2] / 255) ** inverseGamma);
 			   }
 			}
 
