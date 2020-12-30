@@ -123,7 +123,7 @@
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
 			// no more gamma correcting, just use this equivalent min threshold:
-			let low = new cv.Mat(src.rows, src.cols, src.type(), [100, 0, 100, 0]); 
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [160, 0, 160, 0]); 
 			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 100, 255, 255]);
 			cv.inRange(src, low, high, magenta);
 			//cv.imshow('canvasOutput', magenta);
@@ -199,7 +199,7 @@
 			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
 			cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.7, screenBoundingRect.height * 0.8);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.1, screenBoundingRect.height * 0.1, screenBoundingRect.width * 0.9, screenBoundingRect.height * 0.4);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
