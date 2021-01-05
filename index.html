@@ -216,7 +216,7 @@
 			let pointB = new cv.Point(screenBoundingRect.x + screenBoundingRect.width, screenBoundingRect.y + screenBoundingRect.height);
 
 			let pointAA = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.03), screenBoundingRect.y + (screenBoundingRect.height*0.03));
-			let pointBB = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.5), screenBoundingRect.y + (screenBoundingRect.height*0.5));
+			let pointBB = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.5), screenBoundingRect.y + (screenBoundingRect.height*0.4));
 
 			cv.rectangle(dst, pointA, pointB, rectangleColor, 2, cv.LINE_AA, 0);
 			cv.rectangle(dst, pointAA, pointBB, contoursColor, 2, cv.LINE_AA, 0);
@@ -230,7 +230,7 @@
 			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
 			cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.05, screenBoundingRect.height * 0.03, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.5);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.03, screenBoundingRect.height * 0.03, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.4);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
@@ -290,7 +290,12 @@
 					  "focalLength: " + focalLength + "\nscreennWidthMM: " + screenWidthMM + "\nimageWidth: " + imageWidth + "\nscreenWidthPx: " + screenWidthPx + "\nsensorWidth: " + sensorWidth);
 			}
 
+			/*
 			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+			*/
+
+			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+
 
 /*
 			// Now, crop screen (to avoid bezels) and look for the reference card
