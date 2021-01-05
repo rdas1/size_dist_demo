@@ -18,7 +18,7 @@
 		<li style="list-style:none;">
 			<label class="custom-file-upload">
 				<input type="file" id="fileInput" name="file" accept="image/*"/>
-				Click here, then click "Take Photo"
+				Click here, then click "Take Photo", and then "Use Photo"
 			</label>
 		</li>
 		<li style="list-style: none;">
@@ -283,7 +283,7 @@
 			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
 
 			viewingDistance = getViewingDistance();
-			if (isNan(viewingDistance)) {
+			if (isNaN(viewingDistance)) {
 				alert("Viewing distance is NaN -- parameters:\n" +
 					  "focalLength: " + focalLength + "\nscreennWidthMM: " + screenWidthMM + "\nimageWidth: " + imageWidth + "\nscreenWidthPx: " + screenWidthPx + "\nsensorWidth: " + sensorWidth
 					);
