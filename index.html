@@ -29,7 +29,7 @@
 
 	<div>
 		<div class="inputoutput">
-			<img id="imageSrc" style="display: none"/>
+			<img id="imageSrc" style="display:none;"/>
 			<canvas id="canvasOutput" ></canvas>
 			<canvas id="canvasOutput2" ></canvas>
 			<div class="caption"></div>
@@ -149,7 +149,7 @@
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
 			// no more gamma correcting, just use this equivalent min threshold:
-			let low = new cv.Mat(src.rows, src.cols, src.type(), [0, 0, 200, 0]); 
+			let low = new cv.Mat(src.rows, src.cols, src.type(), [0, 0, 190, 0]); 
 			let high = new cv.Mat(src.rows, src.cols, src.type(), [255, 200, 255, 255]);
 			cv.inRange(src, low, high, magenta);
 			//cv.imshow('canvasOutput', magenta);
@@ -295,67 +295,6 @@
 			*/
 
 			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
-
-
-/*
-			// Now, crop screen (to avoid bezels) and look for the reference card
-
-			screenCroppedRect = new cv.Rect(screenBoundingRect.x + (screenBoundingRect.width * 0.25), screenBoundingRect.y +(screenBoundingRect.width * 0.1), (screenBoundingRect.width * 0.5), (screenBoundingRect.height * 0.5));
-			cv.bitwise_not(blurred, src);
-			src = blurred.roi(screenCroppedRect);
-			dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-			// cv.imshow('canvasOutput', src); // to see crop
-			contours = new cv.MatVector();
-			hierarchy = new cv.Mat();
-			cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
-			largestContour = 0;
-			for (let i = 0; i < contours.size(); ++i) {
-
-				if (cv.contourArea(contours.get(i)) > cv.contourArea(contours.get(largestContour))) {
-					largestContour = i;
-				}
-
-			    let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
-			                              Math.round(Math.random() * 255));
-			    cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
-			}
-			//cv.imshow('canvasOutput2', dst);
-			//console.log(largestContour);
-			let cardCont = contours.get(largestContour);
-			// You can try more different parameters
-			let cardBoundingRect = cv.boundingRect(cardCont);
-
-			console.log("cardBoundingRect.width", cardBoundingRect.width);
-			console.log("cardBoundingRect.height", cardBoundingRect.height);
-			console.log(cardBoundingRect.width / cardBoundingRect.height);
-
-			let pointC = new cv.Point(cardBoundingRect.x, cardBoundingRect.y);
-			let pointD = new cv.Point(cardBoundingRect.x + cardBoundingRect.width, cardBoundingRect.y + cardBoundingRect.height);
-			cv.rectangle(dst, pointC, pointD, rectangleColor, 2, cv.LINE_AA, 0);		
-			cv.imshow('canvasOutput2', dst);
-
-
-			cardWidthPx = cardBoundingRect.width;
-			ppI = cardWidthPx/cardWidthIn;
-			ppMM = cardWidthPx/cardWidthMM;
-			//ppI = cardWidthPx/cardHeightIn;
-			//ppMM = cardWidthPx/cardHeightMM;
-
-			screenWidthIn = screenWidthPx / ppI;
-			screenHeightIn = screenHeightPx / ppI;
-			screenDiagIn = screenDiagPx / ppI;
-
-			screenWidthMM = screenWidthPx / ppMM;
-			screenHeightMM = screenHeightPx / ppMM;
-			screenDiagMM = screenDiagPx / ppMM;	
-
-
-			console.log("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)");
-			console.log("Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)");
-			console.log("Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)");
-
-			alert("Screen Width: " +  screenWidthIn + "in (" + screenWidthMM + "mm)\n" + "Screen Height: " +  screenHeightIn + "in (" + screenHeightMM + "mm)\n" + "Screen Diagonal: " +  screenDiagIn + "in (" + screenDiagMM + "mm)")	
-*/
 		}
 
 		function getViewingDistance() {
@@ -366,7 +305,7 @@
 			console.log(imageWidth);
 			console.log(cardWidthPx);
 			console.log(sensorWidth);
-			*/
+			*/			
 
 			viewingDistance = (focalLength * screenWidthMM * imageWidth)/(screenWidthPx * sensorWidth);
 			console.log("Viewing distance: ", viewingDistance);
