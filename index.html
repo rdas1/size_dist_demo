@@ -101,8 +101,10 @@
 			imageWidth = exifData.PixelXDimension;
 			imageHeight = exifData.PixelYDimension;
 
-			focalLength = exifData.FocalLength;
+			focalLength = exifData.FocalLength; 
+			if (focalLength === undefined) focalLength = 4.25;
 			equivalent35MMFocalLength = exifData.FocalLengthIn35mmFormat;
+			if (equivalent35MMFocalLength === undefined) equivalent35MMFocalLength = 26;
 			console.log(equivalent35MMFocalLength);
 
 			cropFactor = equivalent35MMFocalLength / focalLength;
@@ -285,11 +287,10 @@
 			viewingDistance = getViewingDistance();
 			if (isNaN(viewingDistance)) {
 				alert("Viewing distance is NaN -- parameters:\n" +
-					  "focalLength: " + focalLength + "\nscreennWidthMM: " + screenWidthMM + "\nimageWidth: " + imageWidth + "\nscreenWidthPx: " + screenWidthPx + "\nsensorWidth: " + sensorWidth
-					);
+					  "focalLength: " + focalLength + "\nscreennWidthMM: " + screenWidthMM + "\nimageWidth: " + imageWidth + "\nscreenWidthPx: " + screenWidthPx + "\nsensorWidth: " + sensorWidth);
 			}
 
-			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
 
 /*
 			// Now, crop screen (to avoid bezels) and look for the reference card
