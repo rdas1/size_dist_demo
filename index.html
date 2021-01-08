@@ -225,7 +225,7 @@
 			let pointB = new cv.Point(screenBoundingRect.x + screenBoundingRect.width, screenBoundingRect.y + screenBoundingRect.height);
 
 			let pointAA = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.03), screenBoundingRect.y + (screenBoundingRect.height*0.15));
-			let pointBB = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.5), screenBoundingRect.y + (screenBoundingRect.height*0.3));
+			let pointBB = new cv.Point(screenBoundingRect.x + (screenBoundingRect.width*0.5), screenBoundingRect.y + (screenBoundingRect.height*0.33));
 
 			cv.rectangle(dst, pointA, pointB, rectangleColor, 2, cv.LINE_AA, 0);
 			cv.rectangle(dst, pointAA, pointBB, contoursColor, 2, cv.LINE_AA, 0);
@@ -239,7 +239,7 @@
 			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
 			cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.03, screenBoundingRect.height * 0.15, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.3);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.03, screenBoundingRect.height * 0.15, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.33);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
@@ -300,19 +300,17 @@
 			}
 
 			/*
-			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n\n" + "Viewing Distance: " + viewingDistance.toFixed(0) + "mm");
 			*/
 
-			
-
-			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in\n\n" + "Viewing Distance: " + viewingDistance.toFixed(0) + "mm");
 
 			
 
 			document.getElementById("screenWidth").innerText = screenWidthIn.toFixed(2) + "in";
 			document.getElementById("screenHeight").innerText = screenHeightIn.toFixed(2) + "in";
 			document.getElementById("screenDiagonal").innerText = screenDiagIn.toFixed(2) + "in";
-			document.getElementById("viewingDistance").innerText = viewingDistance.toFixed(2) + "mm";
+			document.getElementById("viewingDistance").innerText = viewingDistance.toFixed(0) + "mm";
 
 			document.getElementById("results").style = "display: block";
 

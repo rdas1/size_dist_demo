@@ -22,7 +22,6 @@ body
 }
 
 
-
 .photoButton {
 	margin: auto;
 	text-align: center;
@@ -61,7 +60,10 @@ img {
 	display: none;
 }
 */
-
+/*
 .inputoutput {
 	display: none;
+	margin: auto;
+	text-align: center;
 }
+*/
