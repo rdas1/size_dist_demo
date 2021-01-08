@@ -230,7 +230,7 @@
 			cv.resize(dst, dst, new cv.Size(0,0), 0.25, 0.25);
 			cv.imshow('canvasOutput', dst);	
 
-			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.03, screenBoundingRect.height * 0.03, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.4);
+			let screenCroppedRect = new cv.Rect(screenBoundingRect.width * 0.03, screenBoundingRect.height * 0.15, screenBoundingRect.width * 0.5, screenBoundingRect.height * 0.4);
 
 			let screen = blurred.roi(screenBoundingRect);
 			screen = screen.roi(screenCroppedRect);
