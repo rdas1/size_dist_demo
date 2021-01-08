@@ -60,10 +60,10 @@ img {
 	display: none;
 }
 */
-/*
+
 .inputoutput {
-	display: none;
+	/*display: none;*/
 	margin: auto;
 	text-align: center;
 }
-*/
+
