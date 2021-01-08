@@ -23,7 +23,7 @@ body
 
 
 
-.inputoutput, .photoButton {
+.photoButton {
 	margin: auto;
 	text-align: center;
 }
@@ -62,6 +62,6 @@ img {
 }
 */
 
-canvas {
+.inputoutput {
 	display: none;
 }
