@@ -7,27 +7,46 @@
 </head>
 <body>
 	<h3 id="status">Loading OpenCV...</h3>
-	<ul class="instructionsList">
-		<li style="list-style:none;"><span>Use the button below to take a photo of your screen.</span>
-			<ul class="instructionsList">
-				<li><span>Maximize the browser window on your computer.</span></li>
-				<li><span>Hold your ID card or credit card vertically against your screen, with the shorter edge aligned with the white line.</span></li>
-				<li><span>Make sure your fingers don't cover the top edge of the card. For best results, hold your card from its bottom edge.</span></li>
-			</ul>
-		</li>
-		<li style="list-style:none;">
-			<label class="custom-file-upload">
-				<input type="file" id="fileInput" name="file" accept="image/*"/>
-				Click here, then click "Take Photo", and then "Use Photo"
-			</label>
-		</li>
-		<li style="list-style: none;">
-			Your photo should look like this:
-				<li style="list-style: none; text-align: center"><img id="example" src="public/example.JPG"/></li>
-		</li>
-	</ul>
 
-	<div>
+	<div id="results" style="display: none">
+		<h3 style="margin: 0.5em;"><b><u>RESULTS:</u></b></h3>
+		<ul class="instructionsList">
+				<li>Screen Width: <span id="screenWidth"></span></li>
+				<li>Screen Height: <span id="screenHeight"></span></li>
+				<li>Screen Diagonal: <span id="screenDiagonal"></span></li>
+				<li>Viewing Distance: <span id="viewingDistance"></span></li>
+
+			<hr>
+
+	</div>
+
+	<div id="init">
+		<ul class="instructionsList">
+			<li style="list-style:none;"><span>Use the button below to take a photo of your screen.</span>
+				<ul class="instructionsList">
+					<li><span>Maximize the browser window on your computer.</span></li>
+					<li><span>Hold your ID card or credit card vertically against your screen, with the shorter edge aligned with the white line.</span></li>
+					<li><span>Make sure your fingers don't cover the top edge of the card. For best results, hold your card from its bottom edge.</span></li>
+				</ul>
+			</li>
+			<li style="list-style:none;">
+				<label class="custom-file-upload">
+					<input type="file" id="fileInput" name="file" accept="image/*"/>
+					Click here, then click "Take Photo", and then "Use Photo"
+				</label>
+			</li>
+			<li style="list-style: none;">
+				Your photo should look like this:
+					<li style="list-style: none; text-align: center"><img id="example" src="public/example.JPG"/></li>
+			</li>
+			<li id="yourPhoto" style="list-style: none; display: none;">
+				Your photo:
+					<li style="list-style: none; text-align: center">
+						<canvas id="viewImg"></canvas>
+					</li>
+			</li>
+		</ul>
+
 		<div class="inputoutput">
 			<img id="imageSrc" style="display:none;"/>
 			<canvas id="canvasOutput" ></canvas>
@@ -35,16 +54,6 @@
 			<div class="caption"></div>
 
 		</div>
-	</div>
-
-	<div style="display:none;">
-		<h5>Results:</h5>
-		<ul>
-			<li>Screen Height:</li>
-			<li>Screen Width:</li>
-			<li>Screen Diagonal:</li>
-			<li>Viewing Distance:</li>
-		</ul>
 	</div>
 
 	<script src="https://unpkg.com/exifr@2.1.3/index.js"></script>
@@ -119,6 +128,12 @@
 
 			// first, find the computer screen by finding the pixels that are close to magenta
 			let src = cv.imread(imgElement);
+			
+			let resized = new cv.Mat();
+			cv.resize(src, resized, new cv.Size(0,0), 0.2, 0.2);
+			cv.imshow("viewImg", resized);
+			document.getElementById("yourPhoto").style = "list-style: none; display: inline-block;";
+			resized.delete();
 
 			//if (document.getElementById("gammeCorrectionSwitch").checked) {
 
@@ -139,12 +154,6 @@
 		};
 
 		function getSize(src) {
-
-			let resized = new cv.Mat();
-			cv.resize(src, resized, new cv.Size(0,0), 0.1, 0.1);
-			//cv.imshow("canvasInput", resized);
-			resized.delete();
-
 
 			let magenta = new cv.Mat();
 			//let low = new cv.Mat(src.rows, src.cols, src.type(), [190, 0, 190, 0]);
@@ -294,7 +303,20 @@
 			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in (" + screenWidthMM.toFixed(2) + "mm)\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in (" + screenHeightMM.toFixed(2) + "mm)\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in (" + screenDiagMM.toFixed(2) + "mm)\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
 			*/
 
+			/*
+
 			alert("Screen Width: " +  screenWidthIn.toFixed(2) + "in\n" + "Screen Height: " +  screenHeightIn.toFixed(2) + "in\n" + "Screen Diagonal: " +  screenDiagIn.toFixed(2) + "in\n\n" + "Viewing Distance: " + viewingDistance.toFixed(2) + "mm");
+
+			*/
+
+			document.getElementById("screenWidth").innerText = screenWidthIn.toFixed(2) + "in";
+			document.getElementById("screenHeight").innerText = screenHeightIn.toFixed(2) + "in";
+			document.getElementById("screenDiagonal").innerText = screenDiagIn.toFixed(2) + "in";
+			document.getElementById("viewingDistance").innerText = viewingDistance.toFixed(2) + "mm";
+
+			document.getElementById("results").style = "display: block";
+
+
 		}
 
 		function getViewingDistance() {
