@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+
+body {
+	background-color: #FAFAFA;
+	color: black;
+	font-family: 'Helvetica', sans-serif;
+	text-align: center
+}
+
+#distanceDiv {
+	display: none;
+}
+
+.alignment {
+	margin: auto;
+	border-left: dashed green;
+	width: 50%;
+	height: 100px;
+}
+
+#alignment2 {
+	width: 99.5%;
+	border-right: dashed grey;
+	height: 100px;
+}
+
+.slidecontainer {
+	width: 100%;
+  	text-align: center;
+
+}
+
+.slider {
+	-webkit-appearance: none;
+	width: 50%;
+	height: 20px;
+	background: #d3d3d3;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+}
+
+.slider:hover {
+	opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 25px;
+	background: green;
+	cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+	width: 25px;
+	height: 25px;
+	background: #4CAF50;
+	cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+
+<div id="sizeDiv" style="text-align: center">
+	<h1>Screen Size Calibration</h1>
+	<h2>First, we'll use a credit card (or a card of equal size, like a driver's license) to calculate the real-life size of your computer screen.</h2>
+	<div class="slidecontainer">  
+	  <h2>Align the left (shorter) edge of your card  with the dashed green line.<br/>Then, drag the slider to measure the top (longer) edge of your card:</h2>
+	  <input type="range" min="1" max="1000" value="1000" class="slider" id="myRange" style="margin-bottom: 5px;">
+	  <div class="alignment"><div id="alignment2"></div></div>
+	  <h3>Screen Diagonal: <span id="diagonalOutput"></span></h3>
+	  <h3>Screen Width: <span id="widthOutput"></span></h3>
+	  <h3>Screen Height: <span id="heightOutput"></span></h3>
+	  <h4>When you're ready, click Next.</h4>
+	  <button id="nextButton" onclick="measureDistance()">Next</button>
+	</div>
+</div>
+
+<div id="distanceDiv">
+	<h1>Viewing Distance Calibration</h1>
+	<h2>Now, we'll measure your viewing distance (the distance from your eye to the screen).</h2>
+	<h2>To do this, we'll perform a blind spot test.</h2>
+	<h2>Cover or close your left eye and focus on the black square. Press the spacebar when the red circle disappears from view. If it doesn't disappear, you may have to move closer or farther from the screen.</h2>
+	<div class="blindSpotContainer">
+		<canvas id="blindSpotCanvas" style="border: solid #006699;"></canvas>
+	 	<button id="nextButton" onclick="measureDistance()">Next</button>
+	</div>
+</div>
+
+<div>
+	
+</div>
+
+<script>
+	var slider = document.getElementById("myRange");
+	var rightAlign = document.getElementById("alignment2");
+
+	var widthOutput = document.getElementById("widthOutput");
+	var heightOutput = document.getElementById("heightOutput");
+	var diagonalOutput = document.getElementById("diagonalOutput");
+	//output.innerHTML = slider.value;
+	var cardWidthPx;
+	var ppi;
+
+	var screenWidthPx = window.screen.width;
+	var screenHeightPx = window.screen.height;
+
+	var screenWidthIn;
+	var screenHeightIn;
+	var screenDiagonalIn;
+
+	slider.oninput = function() {
+
+		rightAlign.style = "visibility: visible; width: " + this.value / 10 + "%"
+
+		cardWidthPx = slider.clientWidth * (this.value / 1000);
+		ppi = cardWidthPx / 3.375;
+
+		screenWidthIn = screenWidthPx / ppi;
+		screenHeightIn = screenHeightPx / ppi;
+		screenDiagonalIn = Math.sqrt( (Math.pow(screenWidthIn, 2) + Math.pow(screenHeightIn, 2)) )
+		
+		heightOutput.innerHTML = screenHeightIn.toFixed(2) + "in";
+		widthOutput.innerHTML = screenWidthIn.toFixed(2) + "in";
+		diagonalOutput.innerHTML = screenDiagonalIn.toFixed(2) + "in";
+	}
+
+	function getTanFromDegrees(degrees) {
+	  return Math.tan(degrees * Math.PI / 180);
+	}
+
+	//var next = document.getElementById("nextButton");
+	function measureDistance(event) {
+			
+		console.log("clicked");
+		document.getElementById("sizeDiv").style.display = "none";
+		document.getElementById("distanceDiv").style.display = "block";
+
+        
+        //canvas.height = window.innerHeight;
+
+        /**
+         * Your drawings need to be inside this function otherwise they will be reset when 
+         * you resize the browser window and the canvas goes will be cleared.
+         */
+		getBlindSpot();
+
+	}
+
+	function getBlindSpot() {
+
+		window.addEventListener("keydown", handleKeyDown, true);
+
+		var mainCanvas = document.querySelector("#blindSpotCanvas");
+		var mainContext = mainCanvas.getContext("2d");
+
+		mainCanvas.width = window.innerWidth * 0.99;
+		mainCanvas.height = 100;
+		 
+		var canvasWidth = mainCanvas.width;
+		var canvasHeight = mainCanvas.height;
+		
+		var requestAnimationFrame = window.requestAnimationFrame || 
+		                            window.mozRequestAnimationFrame || 
+		                            window.webkitRequestAnimationFrame || 
+		                            window.msRequestAnimationFrame;
+
+		var xPos = (mainCanvas.width/2);
+		var deltaX = 10;
+		function drawCircle() {
+		    mainContext.clearRect(0, 0, canvasWidth, canvasHeight);
+		     
+		    // color in the background
+		    mainContext.fillStyle = "#EEEEEE";
+		    mainContext.fillRect(0, 0, canvasWidth, canvasHeight);
+		    
+		    mainContext.fillStyle = "#000000";
+			mainContext.fillRect((mainCanvas.width/2) - 40, mainCanvas.height/2 - 20, 40, 40);
+
+		    // draw the circle
+		    mainContext.beginPath();
+		    mainContext.arc(xPos, mainCanvas.height/2, 25, 0, Math.PI * 2);
+		    mainContext.closePath();
+		     
+		    // color in the circle
+		    mainContext.fillStyle = "#FF0000";
+		    mainContext.fill();
+		    
+		    if (xPos <= 20 || xPos >= canvasWidth-20) {
+		    	deltaX = -deltaX;
+		    }
+		    
+		    xPos += deltaX;
+		    //requestAnimationFrame(drawCircle);
+		}
+		//drawCircle(); 
+		setInterval(drawCircle, 40);
+
+		function handleKeyDown(e) {
+			if (e.keyCode == 32) {
+				clearInterval(drawCircle);
+				//alert(mainCanvas.width/2 - xPos);
+				//alert((mainCanvas.width/2 - xPos) / ppi)
+				alert("Viewing distance: " + Math.abs(((mainCanvas.width/2 - xPos) / ppi) / getTanFromDegrees(13.5)).toFixed(2) + "in" );
+			}
+		}
+
+	}
+
+
+</script>
+
+</body>
+</html>
