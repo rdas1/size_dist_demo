@@ -4,13 +4,17 @@
 }
 
 video { 
+	/*visibility: hidden;*/
 	border: 2px solid #666;
 	position: fixed; /* or absolute */
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+
 }
 
 
 canvas {
-	border: 2px solid red;
+	border: 2px solid black;
 	position: relative;
 	display: block;
   /* display: none; */

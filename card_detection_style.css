@@ -1,0 +1,25 @@
+.container {
+	margin: auto;
+	width: 50%;
+}
+
+video { 
+	/*visibility: hidden;*/
+	border: 2px solid #666;
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+
+}
+
+
+canvas {
+	border: 2px solid black;
+	-webkit-transform: scaleX(-1);
+	transform: scaleX(-1);
+	/*display: block;*/
+  /* display: none; */
+}
+
+h1 {
+	display: block;
+}

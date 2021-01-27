@@ -2,14 +2,64 @@ var video = document.querySelector("#videoElement");
 var canvas = document.querySelector('#faceDetectionCanvas');
 var context = canvas.getContext('2d');
 
-var tracker = new tracking.ObjectTracker('eye');
-//tracker.setInitialScale(4);
-tracker.setStepSize(1.7);
-tracker.setEdgesDensity(0.1);
 
-tracking.track('#videoElement', tracker, { camera: true });
+function reverseRect(rect) {
+	let reversed = rect;
+	reversed.x = canvas.width - rect.x - rect.width;
+	return reversed;
+}
 
-tracker.on('track', function(event) {
+var eyeTracker = new tracking.ObjectTracker(['eye']);
+var faceTracker = new tracking.ObjectTracker(['face']);
+
+//eyeTracker.setInitialScale(4);
+eyeTracker.setStepSize(1.7);
+eyeTracker.setEdgesDensity(0.1);
+
+faceTracker.setStepSize(1.7);
+faceTracker.setEdgesDensity(0.1);
+
+var eyeTrackerTask = tracking.track('#videoElement', eyeTracker, { camera: true });
+
+var mostRecentRects = [];
+var counter = 0;
+
+window.addEventListener("keydown", handleKeyDownEyes, true);
+
+function handleKeyDownEyes(e) {
+	console.log("Key pressed");
+	eyeTrackerTask.stop();
+	if (e.keyCode == 32) {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		mostRecentRects.forEach(function(rect, idx) {
+			//rect = reverseRect(rect);
+			//mostRecentRects[idx % 2] = rect;
+			context.strokeStyle = 'white';
+			context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+
+		});
+	}
+}
+
+eyeTracker.on('track', function(event) {
+
+	if (event.data.length != 2){
+		counter = 0;
+		//context.clearRect(0, 0, canvas.width, canvas.height);
+		return;
+	}
+	counter++;
+
+	context.clearRect(0, 0, canvas.width, canvas.height);
+
+	event.data.forEach(function(rect, idx) {
+		rect = reverseRect(rect);
+		mostRecentRects[idx % 2] = rect;
+		context.strokeStyle = 'red';
+		context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+	});
+	
+/*
 	context.clearRect(0, 0, canvas.width, canvas.height);
 
 	if (event.data.length > 2) return;
@@ -21,8 +71,10 @@ tracker.on('track', function(event) {
 
 	event.data.forEach(function(rect, idx) {
 
-	  context.strokeStyle = '#a64ceb';
-	  context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+		rect = reverseRect(rect);
+
+	  	context.strokeStyle = '#a64ceb';
+	  	context.strokeRect(rect.x, rect.y, rect.width, rect.height);
 
 	  context.font = '20px Helvetica';
 	  context.fillStyle = "red";
@@ -34,6 +86,7 @@ tracker.on('track', function(event) {
 	  	context.fillText('distance: ' + distance + 'px', canvas.width/2-20, canvas.height - 20);
 	  }
 	});
+*/	
 });
 
 /*

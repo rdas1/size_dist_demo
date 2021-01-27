@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="card_detection_style.css">
+</head>
+<body>
+	<div class="container">
+		<video id="videoElement" width="600" height="337.5" style="position: fixed;" preload autoplay loop muted></video>
+		<canvas id="canvasOutput" width="600" height="337.5" style="position: relative; z-index: 10;"></canvas>
+	</div>
+	<script>
+
+		function onOpenCvReady() {
+
+			var startX = 0;
+			var startY = 0;
+			var endX = 0;
+			var endY = 0;
+
+			cv['onRuntimeInitialized']=()=>{
+				console.log("Loaded OpenCV");
+				let video = document.getElementById("videoElement"); // video is the id of video tag
+				let streaming;
+				navigator.mediaDevices.getUserMedia({video: { width: { ideal: 4096 }, height: { ideal: 2160 } } , audio: false })
+				    .then(function(stream) {
+				    	streaming = true;
+				        video.srcObject = stream;
+				        video.play();
+				        console.log(stream.getVideoTracks()[0].getSettings().height);
+				    })
+				    .catch(function(err) {
+				    	streaming = false;
+				        console.log("An error occurred! " + err);
+				    });
+
+				let canvas = document.getElementById("canvasOutput");
+				let context = canvas.getContext('2d');
+
+		        canvas.addEventListener("mousedown", function (e) {
+		        	//video.pause();
+		        	findXY('down', e);
+		        }, false);
+
+
+			    function findXY(res, e) {
+			        if (res == 'down') {
+			        	startX = e.clientX - canvas.offsetLeft;
+			        	startY = e.clientY - canvas.offsetTop;
+			        	context.fillStyle = "#EEEEEE";
+			        	ontext.clearRect(0, 0, canvas.width, canvas.height);
+					    context.beginPath();
+					    context.arc(startX, startY, 25, 0, Math.PI * 2);
+					    context.closePath();
+			        }
+			    }
+			};
+		}
+
+	</script>
+	<script async src="https://docs.opencv.org/master/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+</body>
